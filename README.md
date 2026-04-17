@@ -226,19 +226,7 @@ Open browser and go to: `http://localhost:3000`
 
 ---
 
-## 📸 Screenshots
 
-### Login Page
-![Login](screenshots/login.png)
-
-### Dashboard
-![Dashboard](screenshots/dashboard.png)
-
-### Marketplace
-![Marketplace](screenshots/marketplace.png)
-
-### Transaction History
-![Transactions](screenshots/transactions.png)
 
 ---
 
@@ -309,30 +297,13 @@ Open browser and go to: `http://localhost:3000`
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
----
-
-## 👥 Team Members
-
-| Name | Roll No | SAP ID |
-|------|---------|--------|
-| M. Vinuthna | A036 | 705724001037 |
-| Faiz | A050 | 705724001187 |
-| P. Charan | A056 | 70572400124 |
-
----
-
-## 🙏 Acknowledgments
-
-- Prof. Tasneem Wasiha for guidance
-- NMIMS MPSTME for the opportunity
-- Open source community for amazing tools
 
 ---
 
 ## 📧 Contact
 
 For any queries or support, please contact:
-- Email: support@g4mexchange.com
+- Email: Abhishek.mohale11@gmail.com
 - GitHub Issues: [Create an issue](https://github.com/abhishekmohale11/g4mexchange/issues)
 
 ---
