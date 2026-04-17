@@ -59,6 +59,7 @@ G4MEXCHANGE is a comprehensive online marketplace platform specifically designed
 
 ## 📁 Project Structure
 g4mexchange/
+
 ├── server.js # Main backend server
 ├── package.json # Dependencies
 ├── database_G4ME.sql # Database schema
