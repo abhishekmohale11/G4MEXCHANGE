@@ -58,4 +58,34 @@ G4MEXCHANGE is a comprehensive online marketplace platform specifically designed
 
 ---
 
-## 📁 Project Structure
+## 📊 Database Schema
+
+| Table | Description |
+|-------|-------------|
+| users | User accounts & trust scores |
+| items | Gaming product listings |
+| transactions | Buy/rent records |
+| reviews | Ratings & feedback |
+| payments | Payment history |
+
+### Sample Data
+- **5 Demo Users** (Buyers & Sellers)
+- **65+ Gaming Items** (PS5, Xbox, Nintendo, PC)
+- **7 Transactions** (Completed, Pending, Returned)
+- **6 Reviews** (4-5 star ratings)
+
+---
+
+## 🔧 Installation & Setup
+
+### Prerequisites
+
+- Node.js (v14 or higher)
+- MySQL Server (XAMPP/WAMP/MAMP)
+- Git
+
+### Step 1: Clone the Repository
+
+```bash
+git clone https://github.com/yourusabhishekmohale11/g4mexchange.git
+cd g4mexchange
