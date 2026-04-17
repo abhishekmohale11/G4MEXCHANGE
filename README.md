@@ -56,6 +56,23 @@ G4MEXCHANGE is a comprehensive online marketplace platform specifically designed
 | MySQL | Relational database |
 | MySQL2 | Database driver |
 
+
+## 📁 Project Structure
+g4mexchange/
+├── server.js # Main backend server
+├── package.json # Dependencies
+├── database_G4ME.sql # Database schema
+├── index.html # Login/Register page
+├── dashboard.html # User dashboard
+├── marketplace.html # Buy/Sell items
+├── profile.html # User profile
+├── wallet.html # Wallet management
+├── transactions.html # Transaction history
+├── myitems.html # My listings
+├── style.css # Global styles
+├── script.js # Frontend scripts
+└── public/ # Static assets
+
 ---
 
 ## 📊 Database Schema
