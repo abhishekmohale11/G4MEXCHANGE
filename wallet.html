@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wallet - G4MEXCHANGE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="bg-animation"></div>
+    
+    <div class="navbar">
+        <a href="dashboard.html" class="logo">
+            <i class="fas fa-gamepad"></i>
+            <h2>G4M<span>EXCHANGE</span></h2>
+        </a>
+        <div class="nav-controls">
+            <div class="role-badge" id="roleBadge">
+                <i class="fas fa-user-tag"></i>
+                <span id="roleText">BUYER</span>
+            </div>
+            <button class="logout-btn-nav" id="logoutButtonNav">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+            <div class="user-menu">
+                <i class="fas fa-user-circle" style="color: white; font-size: 24px;"></i>
+                <span style="color: white;" id="userName"></span>
+                <i class="fas fa-chevron-down" style="color: white; font-size: 12px;"></i>
+                <div class="dropdown">
+                    <a href="profile.html"><i class="fas fa-user"></i> My Profile</a>
+                    <a href="wallet.html"><i class="fas fa-wallet"></i> My Wallet</a>
+                    <a href="transactions.html"><i class="fas fa-history"></i> Transactions</a>
+                    <a href="myitems.html"><i class="fas fa-box"></i> My Items</a>
+                    <hr>
+                    <a id="logoutDropdownBtn" style="color: #DC143C; font-weight: 600;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-layout">
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li onclick="window.location.href='dashboard.html'" id="menu-dashboard">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </li>
+                <li onclick="window.location.href='marketplace.html'" id="menu-marketplace">
+                    <i class="fas fa-store"></i> Marketplace
+                </li>
+                <li onclick="window.location.href='profile.html'" id="menu-profile">
+                    <i class="fas fa-user-circle"></i> My Profile
+                </li>
+                <li onclick="window.location.href='wallet.html'" id="menu-wallet" class="active">
+                    <i class="fas fa-wallet"></i> Wallet
+                </li>
+                <li onclick="window.location.href='transactions.html'" id="menu-transactions">
+                    <i class="fas fa-history"></i> Transaction History
+                </li>
+                <li onclick="window.location.href='myitems.html'" id="menu-myitems">
+                    <i class="fas fa-box"></i> My Items
+                </li>
+            </ul>
+        </div>
+
+        <div class="content-area">
+            <div class="wallet-card">
+                <i class="fas fa-wallet" style="font-size: 48px;"></i>
+                <h3 style="margin-top: 10px;">Your Balance</h3>
+                <div class="wallet-amount" id="walletAmount">$0</div>
+                <button class="btn-primary" onclick="showAddMoneyModal()" style="margin-top: 15px; background: white; color: #8B0000;">
+                    <i class="fas fa-plus-circle"></i> Add Money
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Money Modal -->
+    <div id="addMoneyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h2><i class="fas fa-plus-circle"></i> Add Money</h2><span class="close-modal" onclick="closeAddMoneyModal()">&times;</span></div>
+            <div class="card-input-group"><input type="number" id="addAmount" placeholder="Amount (USD)" style="width: 100%; padding: 10px;"></div>
+            <div class="card-input-group"><input type="text" id="addCardNumber" placeholder="Card Number (16 digits)" maxlength="19"></div>
+            <div class="card-row">
+                <div class="card-input-group"><input type="text" id="addCardExpiry" placeholder="Expiry (MM/YY)" maxlength="5"></div>
+                <div class="card-input-group"><input type="text" id="addCardCVV" placeholder="CVV" maxlength="4"></div>
+            </div>
+            <div class="card-input-group"><input type="text" id="addCardName" placeholder="Cardholder Name"></div>
+            <button class="btn-primary" onclick="addMoneyWithCard()">Add Money</button>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let currentUser = null;
+        let walletBalance = 0;
+
+        const token = localStorage.getItem('token');
+        if (!token) { window.location.href = '/'; }
+        currentUser = JSON.parse(localStorage.getItem('user'));
+        
+        document.getElementById('userName').textContent = currentUser.full_name || currentUser.username;
+        
+        let currentRole = localStorage.getItem('userRole') || currentUser.role || 'buyer';
+        document.getElementById('roleText').textContent = currentRole.toUpperCase();
+        
+        const roleBadge = document.getElementById('roleBadge');
+        if (currentRole === 'seller') {
+            roleBadge.style.background = '#28a745';
+        } else {
+            roleBadge.style.background = '#FFD700';
+        }
+
+        walletBalance = parseFloat(localStorage.getItem(`wallet_${currentUser.id}`)) || 0;
+        document.getElementById('walletAmount').textContent = `$${walletBalance.toFixed(2)}`;
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                showToast('Logged out successfully!', 'success');
+                setTimeout(() => { window.location.href = '/'; }, 1000);
+            }
+        }
+
+        document.getElementById('logoutButtonNav').addEventListener('click', logout);
+        document.getElementById('logoutDropdownBtn').addEventListener('click', logout);
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.remove('hidden');
+            setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+        }
+
+        function showAddMoneyModal() { 
+            document.getElementById('addMoneyModal').classList.add('active');
+            document.getElementById('addAmount').value = '';
+            document.getElementById('addCardNumber').value = '';
+            document.getElementById('addCardExpiry').value = '';
+            document.getElementById('addCardCVV').value = '';
+            document.getElementById('addCardName').value = '';
+        }
+        
+        function closeAddMoneyModal() { document.getElementById('addMoneyModal').classList.remove('active'); }
+
+        function validateCard(cardNumber, expiry, cvv, cardName) {
+            const cardNumClean = cardNumber.replace(/\s/g, '');
+            if (!/^\d{16}$/.test(cardNumClean)) return { valid: false, error: 'Invalid card number (16 digits required)' };
+            if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiry)) return { valid: false, error: 'Invalid expiry date (MM/YY)' };
+            if (!/^\d{3,4}$/.test(cvv)) return { valid: false, error: 'Invalid CVV (3-4 digits)' };
+            if (!cardName || cardName.length < 3) return { valid: false, error: 'Enter cardholder name' };
+            return { valid: true };
+        }
+
+        async function addMoneyWithCard() {
+            const amount = parseFloat(document.getElementById('addAmount').value);
+            const cardNumber = document.getElementById('addCardNumber').value;
+            const expiry = document.getElementById('addCardExpiry').value;
+            const cvv = document.getElementById('addCardCVV').value;
+            const cardName = document.getElementById('addCardName').value;
+            
+            if (!amount || amount <= 0) { 
+                showToast('Enter valid amount', 'error'); 
+                return; 
+            }
+            
+            const validation = validateCard(cardNumber, expiry, cvv, cardName);
+            if (!validation.valid) { 
+                showToast(validation.error, 'error'); 
+                return; 
+            }
+            
+            try {
+                const paymentResponse = await fetch(`${API_URL}/record-payment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({
+                        user_id: currentUser.id,
+                        amount: amount,
+                        payment_type: 'wallet_add',
+                        card_number: cardNumber,
+                        card_holder_name: cardName
+                    })
+                });
+                
+                if (paymentResponse.ok) {
+                    walletBalance += amount;
+                    localStorage.setItem(`wallet_${currentUser.id}`, walletBalance);
+                    document.getElementById('walletAmount').textContent = `$${walletBalance.toFixed(2)}`;
+                    showToast(`$${amount} added to wallet successfully!`, 'success');
+                    closeAddMoneyModal();
+                } else {
+                    showToast('Payment failed', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Error processing payment', 'error');
+            }
+        }
+
+        document.getElementById('addCardNumber')?.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 16) value = value.slice(0, 16);
+            value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+            e.target.value = value;
+        });
+        
+        document.getElementById('addCardExpiry')?.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 2) value = value.slice(0,2) + '/' + value.slice(2,4);
+            if (value.length > 5) value = value.slice(0,5);
+            e.target.value = value;
+        });
+    </script>
+</body>
+</html>

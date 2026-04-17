@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace - G4MEXCHANGE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .role-toggle-container {
+            background: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .role-label {
+            font-weight: 600;
+            color: #8B0000;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 28px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #DC143C;
+        }
+        input:checked + .slider:before {
+            transform: translateX(32px);
+        }
+        .role-badge-toggle {
+            background: #DC143C;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active, .modal.show {
+            display: flex !important;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    
+    <div class="navbar">
+        <a href="dashboard.html" class="logo">
+            <i class="fas fa-gamepad"></i>
+            <h2>G4M<span>EXCHANGE</span></h2>
+        </a>
+        <div class="nav-controls">
+            <div class="role-toggle-container">
+                <span class="role-label"><i class="fas fa-exchange-alt"></i> Mode</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="roleToggle">
+                    <span class="slider"></span>
+                </label>
+                <span class="role-badge-toggle" id="roleBadgeToggle">BUYER</span>
+            </div>
+            <button class="logout-btn-nav" id="logoutButtonNav">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+            <div class="user-menu">
+                <i class="fas fa-user-circle" style="color: white; font-size: 24px;"></i>
+                <span style="color: white;" id="userName"></span>
+                <i class="fas fa-chevron-down" style="color: white; font-size: 12px;"></i>
+                <div class="dropdown">
+                    <a href="profile.html"><i class="fas fa-user"></i> My Profile</a>
+                    <a href="wallet.html"><i class="fas fa-wallet"></i> My Wallet</a>
+                    <a href="transactions.html"><i class="fas fa-history"></i> Transactions</a>
+                    <a href="myitems.html"><i class="fas fa-box"></i> My Items</a>
+                    <hr>
+                    <a id="logoutDropdownBtn" style="color: #DC143C; font-weight: 600;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-layout">
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li onclick="window.location.href='dashboard.html'" id="menu-dashboard">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </li>
+                <li onclick="window.location.href='marketplace.html'" id="menu-marketplace" class="active">
+                    <i class="fas fa-store"></i> Marketplace
+                </li>
+                <li onclick="window.location.href='profile.html'" id="menu-profile">
+                    <i class="fas fa-user-circle"></i> My Profile
+                </li>
+                <li onclick="window.location.href='wallet.html'" id="menu-wallet">
+                    <i class="fas fa-wallet"></i> Wallet
+                </li>
+                <li onclick="window.location.href='transactions.html'" id="menu-transactions">
+                    <i class="fas fa-history"></i> Transaction History
+                </li>
+                <li onclick="window.location.href='myitems.html'" id="menu-myitems">
+                    <i class="fas fa-box"></i> My Items
+                </li>
+            </ul>
+        </div>
+
+        <div class="content-area">
+            <div id="sellerPanel" class="seller-panel hidden">
+                <h3><i class="fas fa-plus-circle"></i> List New Gaming Item</h3>
+                <div class="form-grid">
+                    <input type="text" id="itemTitle" placeholder="Item Title *">
+                    <select id="itemCategory">
+                        <option value="Console">🎮 Console</option>
+                        <option value="Game">🎯 Game</option>
+                        <option value="Accessory">🎧 Accessory</option>
+                        <option value="Other">📦 Other</option>
+                    </select>
+                    <select id="itemConsole">
+                        <option value="PS5">PS5</option>
+                        <option value="PS4">PS4</option>
+                        <option value="Xbox">Xbox</option>
+                        <option value="Nintendo">Nintendo Switch</option>
+                        <option value="PC">PC</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <select id="itemCondition">
+                        <option value="new">✨ Brand New</option>
+                        <option value="like-new">🌟 Like New</option>
+                        <option value="good">👍 Good</option>
+                        <option value="fair">📖 Fair</option>
+                    </select>
+                    <textarea id="itemDesc" placeholder="Description" rows="2"></textarea>
+                    <input type="number" id="itemPrice" placeholder="Price (USD) *">
+                    <select id="itemType">
+                        <option value="sell">💰 For Sale</option>
+                        <option value="rent">⏳ For Rent</option>
+                    </select>
+                    <input type="text" id="itemLocation" placeholder="Location">
+                    <button class="btn-primary" onclick="createItem()"><i class="fas fa-plus"></i> List Item</button>
+                </div>
+            </div>
+            
+            <div class="filter-bar">
+                <select id="filterCategory" onchange="applyFilters()">
+                    <option value="all">All Categories</option>
+                    <option value="Console">🎮 Consoles</option>
+                    <option value="Game">🎯 Games</option>
+                    <option value="Accessory">🎧 Accessories</option>
+                </select>
+                <select id="filterConsole" onchange="applyFilters()">
+                    <option value="all">All Platforms</option>
+                    <option value="PS5">PS5</option>
+                    <option value="PS4">PS4</option>
+                    <option value="Xbox">Xbox</option>
+                    <option value="Nintendo">Nintendo</option>
+                    <option value="PC">PC</option>
+                </select>
+                <select id="filterType" onchange="applyFilters()">
+                    <option value="all">All Listings</option>
+                    <option value="sell">For Sale</option>
+                    <option value="rent">For Rent</option>
+                </select>
+                <input type="text" id="searchInput" placeholder="Search items..." onkeyup="applyFilters()">
+                <button onclick="resetFilters()"><i class="fas fa-sync-alt"></i> Reset</button>
+            </div>
+            
+            <div id="itemsGrid" class="items-grid"><div style="text-align: center; padding: 40px;"><div class="loading"></div> Loading gaming items...</div></div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h2><i class="fas fa-credit-card"></i> Complete Payment</h2><span class="close-modal" onclick="closePaymentModal()">&times;</span></div>
+            <div id="paymentDetails"></div>
+            <div id="rentalDates" style="display: none;">
+                <div class="date-range">
+                    <div><label><i class="fas fa-calendar-alt"></i> Start Date</label><input type="date" id="rentStartDate"></div>
+                    <div><label><i class="fas fa-calendar-check"></i> End Date</label><input type="date" id="rentEndDate"></div>
+                </div>
+            </div>
+            <div class="payment-methods">
+                <div class="payment-method" onclick="selectPaymentMethod('wallet', this)"><i class="fas fa-wallet"></i><div>Wallet</div></div>
+                <div class="payment-method" onclick="selectPaymentMethod('card', this)"><i class="fab fa-cc-visa"></i><div>Card</div></div>
+            </div>
+            <div id="cardDetails" style="display: none;">
+                <div class="card-input-group"><input type="text" id="cardNumber" placeholder="Card Number (16 digits)" maxlength="19"></div>
+                <div class="card-row">
+                    <div class="card-input-group"><input type="text" id="cardExpiry" placeholder="Expiry (MM/YY)" maxlength="5"></div>
+                    <div class="card-input-group"><input type="text" id="cardCVV" placeholder="CVV" maxlength="4"></div>
+                </div>
+                <div class="card-input-group"><input type="text" id="cardName" placeholder="Cardholder Name"></div>
+            </div>
+            <button class="btn-primary" onclick="processPayment()">Confirm Payment</button>
+        </div>
+    </div>
+
+    <!-- Rating Modal -->
+    <div id="ratingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-star"></i> Rate Your Experience</h2>
+                <span class="close-modal" onclick="closeRatingModal()">&times;</span>
+            </div>
+            <div id="ratingDetails" style="padding: 10px 0;"></div>
+            <div class="rating-stars" style="text-align: center; margin: 20px 0;">
+                <div style="display: flex; justify-content: center; gap: 15px; font-size: 48px; cursor: pointer;">
+                    <i class="far fa-star" data-rating="1" style="color: #ffc107;"></i>
+                    <i class="far fa-star" data-rating="2" style="color: #ffc107;"></i>
+                    <i class="far fa-star" data-rating="3" style="color: #ffc107;"></i>
+                    <i class="far fa-star" data-rating="4" style="color: #ffc107;"></i>
+                    <i class="far fa-star" data-rating="5" style="color: #ffc107;"></i>
+                </div>
+                <input type="hidden" id="selectedRating" value="0">
+            </div>
+            <textarea id="ratingComment" placeholder="Write your review (optional)" rows="3" style="width: 100%; padding: 10px; border: 2px solid #e8e0d8; border-radius: 10px;"></textarea>
+            <button class="btn-primary" id="submitRatingBtn" style="margin-top: 20px;">Submit Review</button>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let currentUser = null;
+        let currentRole = 'buyer';
+        let selectedPaymentMethod = 'wallet';
+        let pendingTransaction = null;
+        let walletBalance = 0;
+        let currentTransactionForRating = null;
+        let currentRating = 0;
+
+        const token = localStorage.getItem('token');
+        if (!token) { window.location.href = '/'; }
+        currentUser = JSON.parse(localStorage.getItem('user'));
+        
+        document.getElementById('userName').textContent = currentUser.full_name || currentUser.username;
+
+        const roleToggle = document.getElementById('roleToggle');
+        const roleBadgeToggle = document.getElementById('roleBadgeToggle');
+        const sellerPanel = document.getElementById('sellerPanel');
+
+        currentRole = localStorage.getItem('userRole') || 'buyer';
+
+        if (currentRole === 'seller') {
+            roleToggle.checked = true;
+            roleBadgeToggle.textContent = 'SELLER';
+            sellerPanel.classList.remove('hidden');
+        } else {
+            roleToggle.checked = false;
+            roleBadgeToggle.textContent = 'BUYER';
+            sellerPanel.classList.add('hidden');
+        }
+
+        roleToggle.addEventListener('change', () => {
+            if (roleToggle.checked) {
+                currentRole = 'seller';
+                roleBadgeToggle.textContent = 'SELLER';
+                sellerPanel.classList.remove('hidden');
+                localStorage.setItem('userRole', 'seller');
+                showToast('Switched to SELLER mode! You can now list items.', 'info');
+            } else {
+                currentRole = 'buyer';
+                roleBadgeToggle.textContent = 'BUYER';
+                sellerPanel.classList.add('hidden');
+                localStorage.setItem('userRole', 'buyer');
+                showToast('Switched to BUYER mode! Browse and purchase items.', 'info');
+            }
+            loadItems();
+        });
+
+        walletBalance = parseFloat(localStorage.getItem(`wallet_${currentUser.id}`)) || 0;
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                showToast('Logged out successfully!', 'success');
+                setTimeout(() => { window.location.href = '/'; }, 1000);
+            }
+        }
+
+        document.getElementById('logoutButtonNav').addEventListener('click', logout);
+        document.getElementById('logoutDropdownBtn').addEventListener('click', logout);
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.remove('hidden');
+            setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+        }
+
+        function escapeHtml(str) { 
+            if (!str) return ''; 
+            return str.replace(/[&<>]/g, function(m) { 
+                if (m === '&') return '&amp;'; 
+                if (m === '<') return '&lt;'; 
+                if (m === '>') return '&gt;'; 
+                return m; 
+            }); 
+        }
+
+        function getConsoleClass(consoleType) {
+            const type = consoleType.toLowerCase();
+            if (type.includes('xbox')) return 'xbox';
+            if (type.includes('ps5') || type.includes('ps4')) return 'ps5';
+            if (type.includes('nintendo')) return 'nintendo';
+            if (type.includes('pc')) return 'pc';
+            return '';
+        }
+
+        async function loadItems() {
+            try {
+                let url = `${API_URL}/items?`;
+                const category = document.getElementById('filterCategory')?.value || 'all';
+                const consoleType = document.getElementById('filterConsole')?.value || 'all';
+                const listingType = document.getElementById('filterType')?.value || 'all';
+                const search = document.getElementById('searchInput')?.value || '';
+                
+                if (category !== 'all') url += `category=${category}&`;
+                if (consoleType !== 'all') url += `console_type=${consoleType}&`;
+                if (listingType !== 'all') url += `listing_type=${listingType}&`;
+                if (search) url += `search=${encodeURIComponent(search)}&`;
+                
+                const response = await fetch(url);
+                const items = await response.json();
+                
+                const itemsGrid = document.getElementById('itemsGrid');
+                if (items.length === 0) { 
+                    itemsGrid.innerHTML = '<div style="text-align: center; padding: 40px;"><i class="fas fa-search" style="font-size: 48px; color: #ccc;"></i><p>No items found</p></div>'; 
+                    return; 
+                }
+                
+                itemsGrid.innerHTML = items.map(item => {
+                    const consoleClass = getConsoleClass(item.console_type);
+                    const conditionClass = item.item_condition === 'new' ? 'condition-new' : (item.item_condition === 'like-new' ? 'condition-like-new' : 'condition-good');
+                    const conditionText = item.item_condition === 'new' ? '✨ Brand New' : (item.item_condition === 'like-new' ? '🌟 Like New' : '👍 Good');
+                    
+                    const showBuyButton = currentRole === 'buyer' && item.seller_id !== currentUser.id;
+                    
+                    return `
+                        <div class="item-card ${consoleClass}">
+                            <div class="item-price">$${item.price}</div>
+                            <h3>${escapeHtml(item.title)}</h3>
+                            <p><i class="fas ${item.category === 'Console' ? 'fa-gamepad' : (item.category === 'Game' ? 'fa-gamepad' : 'fa-headphones')}"></i> ${item.category} | ${item.console_type}</p>
+                            <p><small><i class="fas fa-user"></i> ${escapeHtml(item.seller_name)}</small></p>
+                            <p><small><i class="fas fa-star" style="color: #ffc107;"></i> Trust Score: ${item.seller_trust || 0}</small></p>
+                            <span class="item-condition ${conditionClass}">${conditionText}</span>
+                            ${showBuyButton ? 
+                                `<button class="btn-primary" onclick="showPaymentModal(${item.id}, '${escapeHtml(item.title)}', ${item.price}, '${item.listing_type}')" style="margin-top: 10px; width: 100%;">
+                                    ${item.listing_type === 'sell' ? '<i class="fas fa-shopping-cart"></i> Buy Now' : '<i class="fas fa-calendar-alt"></i> Rent Now'}
+                                </button>` : 
+                                (item.seller_id === currentUser.id ? '<button disabled style="margin-top: 10px; padding: 10px; background: #ccc; border: none; border-radius: 10px;">Your Item</button>' : '')
+                            }
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) { console.error(error); }
+        }
+
+        function applyFilters() { loadItems(); }
+        
+        function resetFilters() {
+            document.getElementById('filterCategory').value = 'all';
+            document.getElementById('filterConsole').value = 'all';
+            document.getElementById('filterType').value = 'all';
+            document.getElementById('searchInput').value = '';
+            loadItems();
+        }
+
+        async function createItem() {
+            if (currentRole !== 'seller') { 
+                showToast('Switch to SELLER mode to list items!', 'error'); 
+                return; 
+            }
+            const item = {
+                title: document.getElementById('itemTitle').value,
+                category: document.getElementById('itemCategory').value,
+                console_type: document.getElementById('itemConsole').value,
+                item_condition: document.getElementById('itemCondition').value,
+                description: document.getElementById('itemDesc').value,
+                price: parseFloat(document.getElementById('itemPrice').value),
+                listing_type: document.getElementById('itemType').value,
+                location: document.getElementById('itemLocation').value,
+                seller_id: currentUser.id
+            };
+            if (!item.title || !item.price) { showToast('Fill title and price', 'error'); return; }
+            try {
+                const response = await fetch(`${API_URL}/items`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(item)
+                });
+                if (response.ok) {
+                    await fetch(`${API_URL}/users/${currentUser.id}/update-trust`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ action: 'item_sold' })
+                    });
+                    
+                    showToast('Item listed successfully! +3 Trust points!', 'success');
+                    document.getElementById('itemTitle').value = '';
+                    document.getElementById('itemDesc').value = '';
+                    document.getElementById('itemPrice').value = '';
+                    document.getElementById('itemLocation').value = '';
+                    loadItems();
+                } else {
+                    showToast('Failed to list item', 'error');
+                }
+            } catch (error) { showToast('Error', 'error'); }
+        }
+
+        function showPaymentModal(itemId, title, amount, type) {
+            if (currentRole !== 'buyer') {
+                showToast('Switch to BUYER mode to make purchases!', 'error');
+                return;
+            }
+            // Store title correctly
+            pendingTransaction = { 
+                itemId: itemId, 
+                title: title,
+                amount: amount, 
+                type: type 
+            };
+            console.log('Pending transaction set:', pendingTransaction);
+            
+            document.getElementById('paymentDetails').innerHTML = `<p><strong>Item:</strong> ${title}</p><p><strong>Amount:</strong> $${amount}</p>`;
+            
+            const rentalDatesDiv = document.getElementById('rentalDates');
+            if (type === 'rent') {
+                rentalDatesDiv.style.display = 'block';
+                const today = new Date().toISOString().split('T')[0];
+                const nextWeek = new Date(Date.now() + 7*24*60*60*1000).toISOString().split('T')[0];
+                document.getElementById('rentStartDate').value = today;
+                document.getElementById('rentEndDate').value = nextWeek;
+            } else {
+                rentalDatesDiv.style.display = 'none';
+            }
+            
+            document.getElementById('paymentModal').classList.add('active');
+            document.getElementById('cardDetails').style.display = 'none';
+            selectedPaymentMethod = 'wallet';
+            document.querySelectorAll('#paymentModal .payment-method').forEach(el => el.classList.remove('selected'));
+            document.querySelector('#paymentModal .payment-method').classList.add('selected');
+        }
+
+        function selectPaymentMethod(method, element) {
+            selectedPaymentMethod = method;
+            document.querySelectorAll('#paymentModal .payment-method').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            document.getElementById('cardDetails').style.display = method === 'card' ? 'block' : 'none';
+        }
+
+        function validateCard(cardNumber, expiry, cvv, cardName) {
+            const cardNumClean = cardNumber.replace(/\s/g, '');
+            if (!/^\d{16}$/.test(cardNumClean)) return { valid: false, error: 'Invalid card number (16 digits required)' };
+            if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiry)) return { valid: false, error: 'Invalid expiry date (MM/YY)' };
+            if (!/^\d{3,4}$/.test(cvv)) return { valid: false, error: 'Invalid CVV (3-4 digits)' };
+            if (!cardName || cardName.length < 3) return { valid: false, error: 'Enter cardholder name' };
+            return { valid: true };
+        }
+
+        async function processPayment() {
+            if (!pendingTransaction) return;
+            
+            let rentStart = null, rentEnd = null;
+            if (pendingTransaction.type === 'rent') {
+                rentStart = document.getElementById('rentStartDate').value;
+                rentEnd = document.getElementById('rentEndDate').value;
+                if (!rentStart || !rentEnd) { showToast('Please select rental dates', 'error'); return; }
+                if (new Date(rentStart) > new Date(rentEnd)) { showToast('End date must be after start date', 'error'); return; }
+            }
+            
+            if (selectedPaymentMethod === 'wallet') {
+                if (walletBalance >= pendingTransaction.amount) {
+                    walletBalance -= pendingTransaction.amount;
+                    localStorage.setItem(`wallet_${currentUser.id}`, walletBalance);
+                    await completeTransaction(rentStart, rentEnd);
+                } else {
+                    showToast('Insufficient balance! Please add money.', 'error');
+                }
+            } else {
+                const cardNumber = document.getElementById('cardNumber').value;
+                const expiry = document.getElementById('cardExpiry').value;
+                const cvv = document.getElementById('cardCVV').value;
+                const cardName = document.getElementById('cardName').value;
+                
+                const validation = validateCard(cardNumber, expiry, cvv, cardName);
+                if (!validation.valid) { showToast(validation.error, 'error'); return; }
+                
+                showToast('Processing payment...', 'info');
+                setTimeout(async () => { await completeTransaction(rentStart, rentEnd); }, 1500);
+            }
+        }
+
+        async function completeTransaction(rentStart, rentEnd) {
+    if (!pendingTransaction) return;
+    
+    try {
+        const response = await fetch(`${API_URL}/transactions`, {
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({
+                item_id: pendingTransaction.itemId, 
+                buyer_id: currentUser.id,
+                transaction_type: pendingTransaction.type === 'sell' ? 'buy' : 'rent', 
+                amount: pendingTransaction.amount,
+                rent_start_date: rentStart,
+                rent_end_date: rentEnd
+            })
+        });
+        
+        const data = await response.json();
+        console.log('Transaction response:', data);
+        
+        if (response.ok) {
+            // Update trust score
+            const trustResponse = await fetch(`${API_URL}/users/${currentUser.id}/update-trust`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ action: 'transaction_complete' })
+            });
+            
+            const trustData = await trustResponse.json();
+            console.log('Trust update:', trustData);
+            
+            showToast(`Payment successful! ${trustData.message || '+5 Trust points!'}`, 'success');
+            closePaymentModal();
+            loadItems();
+            
+            // Show rating modal
+            setTimeout(() => {
+                openRatingModal(data.transaction_id, data.seller_id, pendingTransaction.title);
+            }, 1500);
+            
+        } else {
+            showToast(data.error || 'Transaction failed', 'error');
+        }
+    } catch (error) { 
+        console.error('Transaction error:', error);
+        showToast('Error processing transaction: ' + error.message, 'error'); 
+    }
+}
+
+        function closePaymentModal() { 
+            document.getElementById('paymentModal').classList.remove('active'); 
+            pendingTransaction = null; 
+        }
+
+        // Rating Modal Functions
+        function setRating(rating) {
+            currentRating = rating;
+            document.getElementById('selectedRating').value = rating;
+            
+            for (let i = 1; i <= 5; i++) {
+                const star = document.querySelector(`[data-rating="${i}"]`);
+                if (star) {
+                    if (i <= rating) {
+                        star.className = 'fas fa-star';
+                    } else {
+                        star.className = 'far fa-star';
+                    }
+                }
+            }
+        }
+
+        function openRatingModal(transactionId, sellerId, itemTitle) {
+            console.log('Opening rating modal for:', transactionId, sellerId, itemTitle);
+            
+            currentTransactionForRating = { transactionId, sellerId };
+            
+            const ratingDetails = document.getElementById('ratingDetails');
+            if (ratingDetails) {
+                ratingDetails.innerHTML = `<p>Rate your experience with <strong>${escapeHtml(itemTitle)}</strong></p>`;
+            }
+            
+            // Reset rating
+            currentRating = 0;
+            document.getElementById('selectedRating').value = 0;
+            document.getElementById('ratingComment').value = '';
+            
+            // Reset stars
+            for (let i = 1; i <= 5; i++) {
+                const star = document.querySelector(`[data-rating="${i}"]`);
+                if (star) {
+                    star.className = 'far fa-star';
+                }
+            }
+            
+            // Show modal
+            const modal = document.getElementById('ratingModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                modal.classList.add('active');
+            } else {
+                console.error('Rating modal not found!');
+            }
+        }
+
+        function closeRatingModal() {
+            const modal = document.getElementById('ratingModal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('active');
+            }
+            currentTransactionForRating = null;
+        }
+
+        async function submitRating() {
+            if (!currentTransactionForRating) {
+                showToast('No transaction to rate', 'error');
+                return;
+            }
+            
+            if (currentRating === 0) {
+                showToast('Please select a rating', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/ratings`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({
+                        transaction_id: currentTransactionForRating.transactionId,
+                        reviewer_id: currentUser.id,
+                        reviewee_id: currentTransactionForRating.sellerId,
+                        rating: currentRating,
+                        comment: document.getElementById('ratingComment').value
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showToast('Thank you for your review! Trust score updated.', 'success');
+                    closeRatingModal();
+                } else {
+                    showToast(data.error || 'Failed to submit review', 'error');
+                }
+            } catch (error) {
+                console.error('Rating error:', error);
+                showToast('Error submitting review', 'error');
+            }
+        }
+
+        // Attach event listeners after DOM loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Attach star click events
+            for (let i = 1; i <= 5; i++) {
+                const star = document.querySelector(`[data-rating="${i}"]`);
+                if (star) {
+                    star.onclick = function() { setRating(i); };
+                }
+            }
+            
+            // Attach submit button event
+            const submitBtn = document.getElementById('submitRatingBtn');
+            if (submitBtn) {
+                submitBtn.onclick = submitRating;
+            }
+        });
+
+        document.getElementById('cardNumber')?.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 16) value = value.slice(0, 16);
+            value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+            e.target.value = value;
+        });
+        
+        document.getElementById('cardExpiry')?.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 2) value = value.slice(0,2) + '/' + value.slice(2,4);
+            if (value.length > 5) value = value.slice(0,5);
+            e.target.value = value;
+        });
+
+        loadItems();
+    </script>
+</body>
+</html>

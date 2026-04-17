@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - G4MEXCHANGE</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="bg-animation"></div>
+    
+    <div class="navbar">
+        <a href="dashboard.html" class="logo">
+            <i class="fas fa-gamepad"></i>
+            <h2>G4M<span>EXCHANGE</span></h2>
+        </a>
+        <div class="nav-controls">
+            <div class="role-badge" id="roleBadge">
+                <i class="fas fa-user-tag"></i>
+                <span id="roleText">BUYER</span>
+            </div>
+            <button class="logout-btn-nav" id="logoutButtonNav">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+            <div class="user-menu">
+                <i class="fas fa-user-circle" style="color: white; font-size: 24px;"></i>
+                <span style="color: white;" id="userName"></span>
+                <i class="fas fa-chevron-down" style="color: white; font-size: 12px;"></i>
+                <div class="dropdown">
+                    <a href="profile.html"><i class="fas fa-user"></i> My Profile</a>
+                    <a href="wallet.html"><i class="fas fa-wallet"></i> My Wallet</a>
+                    <a href="transactions.html"><i class="fas fa-history"></i> Transactions</a>
+                    <a href="myitems.html"><i class="fas fa-box"></i> My Items</a>
+                    <hr>
+                    <a id="logoutDropdownBtn" style="color: #DC143C; font-weight: 600;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-layout">
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li onclick="window.location.href='dashboard.html'" id="menu-dashboard" class="active">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </li>
+                <li onclick="window.location.href='marketplace.html'" id="menu-marketplace">
+                    <i class="fas fa-store"></i> Marketplace
+                </li>
+                <li onclick="window.location.href='profile.html'" id="menu-profile">
+                    <i class="fas fa-user-circle"></i> My Profile
+                </li>
+                <li onclick="window.location.href='wallet.html'" id="menu-wallet">
+                    <i class="fas fa-wallet"></i> Wallet
+                </li>
+                <li onclick="window.location.href='transactions.html'" id="menu-transactions">
+                    <i class="fas fa-history"></i> Transaction History
+                </li>
+                <li onclick="window.location.href='myitems.html'" id="menu-myitems">
+                    <i class="fas fa-box"></i> My Items
+                </li>
+            </ul>
+        </div>
+
+        <div class="content-area">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3 id="totalSpent">$0</h3>
+                        <p>Total Spent</p>
+                    </div>
+                    <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3 id="totalPurchases">0</h3>
+                        <p>Total Purchases</p>
+                    </div>
+                    <div class="stat-icon"><i class="fas fa-tag"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3 id="walletBalance">$0</h3>
+                        <p>Wallet Balance</p>
+                    </div>
+                    <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3 id="trustScore">0</h3>
+                        <p>Trust Score</p>
+                    </div>
+                    <div class="stat-icon"><i class="fas fa-star"></i></div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-line"></i> Monthly Spending</h3>
+                    <canvas id="spendingChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-pie"></i> Category Breakdown</h3>
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+
+            <div class="trust-section" style="background: white; border-radius: 15px; padding: 20px; margin-top: 20px;">
+                <h3><i class="fas fa-star"></i> Trust Score Details</h3>
+                <div style="display: flex; align-items: center; gap: 30px; flex-wrap: wrap; margin-top: 15px;">
+                    <div style="text-align: center;">
+                        <div style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #DC143C, #8B0000); display: flex; align-items: center; justify-content: center;">
+                            <span id="trustScoreLarge" style="font-size: 36px; font-weight: 800; color: white;">0</span>
+                        </div>
+                        <p style="margin-top: 10px; font-weight: 600;">Trust Score</p>
+                    </div>
+                    <div style="flex: 1;">
+                        <div id="trustFactors"></div>
+                    </div>
+                    <div>
+                        <button class="btn-primary" onclick="showTrustInfo()" style="padding: 10px 20px;">
+                            <i class="fas fa-info-circle"></i> How to Increase
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="activities-section">
+                <h3><i class="fas fa-clock"></i> Recent Activities</h3>
+                <div id="recentActivities"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="trustInfoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-chart-line"></i> Increase Your Trust Score</h2>
+                <span class="close-modal" onclick="closeTrustModal()">&times;</span>
+            </div>
+            <div style="margin-top: 20px;">
+                <div style="display: flex; align-items: center; gap: 15px; padding: 12px; border-bottom: 1px solid #e0e0e0;">
+                    <i class="fas fa-shopping-cart" style="font-size: 24px; color: #28a745;"></i>
+                    <div><strong>Complete Transactions</strong><br><small>+5 points per successful transaction</small></div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px; padding: 12px; border-bottom: 1px solid #e0e0e0;">
+                    <i class="fas fa-star" style="font-size: 24px; color: #ffc107;"></i>
+                    <div><strong>Receive 5-Star Ratings</strong><br><small>+10 points per 5-star review</small></div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px; padding: 12px; border-bottom: 1px solid #e0e0e0;">
+                    <i class="fas fa-tag" style="font-size: 24px; color: #17a2b8;"></i>
+                    <div><strong>Sell Items</strong><br><small>+3 points per item sold</small></div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px; padding: 12px; border-bottom: 1px solid #e0e0e0;">
+                    <i class="fas fa-undo" style="font-size: 24px; color: #28a745;"></i>
+                    <div><strong>Return Items on Time</strong><br><small>+4 points per on-time return</small></div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px; padding: 12px;">
+                    <i class="fas fa-check-circle" style="font-size: 24px; color: #007bff;"></i>
+                    <div><strong>Verify Account</strong><br><small>+25 points for email & phone verification</small></div>
+                </div>
+            </div>
+            <div style="margin-top: 20px; padding: 15px; background: #f5f0e8; border-radius: 10px;">
+                <h4>Trust Levels:</h4>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+                    <span style="padding: 5px 12px; background: #ddd; border-radius: 20px;">0-20: Newbie</span>
+                    <span style="padding: 5px 12px; background: #28a745; color: white; border-radius: 20px;">21-40: Trusted</span>
+                    <span style="padding: 5px 12px; background: #17a2b8; color: white; border-radius: 20px;">41-60: Verified</span>
+                    <span style="padding: 5px 12px; background: #ffc107; border-radius: 20px;">61-80: Elite</span>
+                    <span style="padding: 5px 12px; background: linear-gradient(135deg, #DC143C, #8B0000); color: white; border-radius: 20px;">81-100: Legendary</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="ratingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-star"></i> Rate Your Experience</h2>
+                <span class="close-modal" onclick="closeRatingModal()">&times;</span>
+            </div>
+            <div id="ratingDetails"></div>
+            <div class="rating-stars" style="text-align: center; margin: 20px 0;">
+                <div style="display: flex; justify-content: center; gap: 15px; font-size: 48px; cursor: pointer;">
+                    <i class="far fa-star" data-rating="1" onclick="setRating(1)" style="color: #ffc107;"></i>
+                    <i class="far fa-star" data-rating="2" onclick="setRating(2)" style="color: #ffc107;"></i>
+                    <i class="far fa-star" data-rating="3" onclick="setRating(3)" style="color: #ffc107;"></i>
+                    <i class="far fa-star" data-rating="4" onclick="setRating(4)" style="color: #ffc107;"></i>
+                    <i class="far fa-star" data-rating="5" onclick="setRating(5)" style="color: #ffc107;"></i>
+                </div>
+                <input type="hidden" id="selectedRating" value="0">
+            </div>
+            <textarea id="ratingComment" placeholder="Write your review (optional)" rows="3" style="width: 100%; padding: 10px; border: 2px solid #e8e0d8; border-radius: 10px;"></textarea>
+            <button class="btn-primary" onclick="submitRating()" style="margin-top: 20px;">Submit Review</button>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let currentUser = null;
+        let spendingChart, categoryChart;
+        let walletBalance = 0;
+
+        const token = localStorage.getItem('token');
+        if (!token) { window.location.href = '/'; }
+        currentUser = JSON.parse(localStorage.getItem('user'));
+        
+        document.getElementById('userName').textContent = currentUser.full_name || currentUser.username;
+        
+        let currentRole = localStorage.getItem('userRole') || currentUser.role || 'buyer';
+        document.getElementById('roleText').textContent = currentRole.toUpperCase();
+        
+        const roleBadge = document.getElementById('roleBadge');
+        if (currentRole === 'seller') {
+            roleBadge.style.background = '#28a745';
+        } else {
+            roleBadge.style.background = '#FFD700';
+        }
+
+        walletBalance = parseFloat(localStorage.getItem(`wallet_${currentUser.id}`)) || 0;
+        document.getElementById('walletBalance').textContent = `$${walletBalance.toFixed(2)}`;
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                showToast('Logged out successfully!', 'success');
+                setTimeout(() => { window.location.href = '/'; }, 1000);
+            }
+        }
+
+        document.getElementById('logoutButtonNav').addEventListener('click', logout);
+        document.getElementById('logoutDropdownBtn').addEventListener('click', logout);
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.remove('hidden');
+            setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+        }
+
+        function escapeHtml(str) { 
+            if (!str) return ''; 
+            return str.replace(/[&<>]/g, function(m) { 
+                if (m === '&') return '&amp;'; 
+                if (m === '<') return '&lt;'; 
+                if (m === '>') return '&gt;'; 
+                return m; 
+            }); 
+        }
+
+        async function loadDashboardData() {
+            try {
+                const response = await fetch(`${API_URL}/users/${currentUser.id}/stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const stats = await response.json();
+                document.getElementById('totalSpent').textContent = `$${stats.total_spent || 0}`;
+                document.getElementById('totalPurchases').textContent = stats.total_purchases || 0;
+                document.getElementById('trustScore').innerHTML = `${stats.trust_score || 0} <i class="fas fa-star" style="color: #ffc107; font-size: 14px;"></i>`;
+
+                const activitiesHtml = (stats.recent_activities || [
+                    { icon: 'fa-shopping-cart', message: 'Welcome to G4MEXCHANGE!', date: 'Just now' },
+                    { icon: 'fa-store', message: 'Browse the marketplace for great deals', date: 'Today' }
+                ]).map(activity => `
+                    <div class="activity-item">
+                        <div class="activity-icon"><i class="fas ${activity.icon}"></i></div>
+                        <div class="activity-details">
+                            <div class="activity-message">${activity.message}</div>
+                            <div class="activity-date">${activity.date}</div>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('recentActivities').innerHTML = activitiesHtml;
+
+                if (spendingChart) spendingChart.destroy();
+                if (categoryChart) categoryChart.destroy();
+
+                const ctx1 = document.getElementById('spendingChart').getContext('2d');
+                spendingChart = new Chart(ctx1, {
+                    type: 'line',
+                    data: { 
+                        labels: stats.months || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], 
+                        datasets: [{ 
+                            label: 'Spending ($)', 
+                            data: stats.spending_data || [0,0,0,0,0,0], 
+                            borderColor: '#DC143C',
+                            backgroundColor: 'rgba(220,20,60,0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }] 
+                    },
+                    options: { responsive: true, maintainAspectRatio: true }
+                });
+
+                const ctx2 = document.getElementById('categoryChart').getContext('2d');
+                categoryChart = new Chart(ctx2, {
+                    type: 'pie',
+                    data: { 
+                        labels: ['Consoles', 'Games', 'Accessories'], 
+                        datasets: [{ 
+                            data: stats.category_data || [0,0,0], 
+                            backgroundColor: ['#DC143C', '#DAA520', '#8B0000'] 
+                        }] 
+                    },
+                    options: { responsive: true, maintainAspectRatio: true }
+                });
+            } catch (error) { console.error(error); }
+        }
+
+        let currentTransactionForRating = null;
+        let currentRating = 0;
+
+        async function loadTrustDetails() {
+            try {
+                const response = await fetch(`${API_URL}/users/${currentUser.id}/trust-details`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                document.getElementById('trustScoreLarge').textContent = data.trust_score;
+                
+                const factorsDiv = document.getElementById('trustFactors');
+                if (data.factors && data.factors.length > 0) {
+                    factorsDiv.innerHTML = data.factors.map(factor => `
+                        <div style="margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>${factor.name}</span>
+                                <span>+${factor.contribution}</span>
+                            </div>
+                            <div style="background: #e0e0e0; border-radius: 10px; height: 8px; overflow: hidden;">
+                                <div style="width: ${factor.value}%; background: linear-gradient(135deg, #DC143C, #8B0000); height: 100%; border-radius: 10px;"></div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    factorsDiv.innerHTML = '<p>Complete more transactions to build trust!</p>';
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        function showTrustInfo() {
+            document.getElementById('trustInfoModal').classList.add('active');
+        }
+
+        function closeTrustModal() {
+            document.getElementById('trustInfoModal').classList.remove('active');
+        }
+
+        function setRating(rating) {
+            currentRating = rating;
+            document.getElementById('selectedRating').value = rating;
+            
+            for (let i = 1; i <= 5; i++) {
+                const star = document.querySelector(`[data-rating="${i}"]`);
+                if (star) {
+                    if (i <= rating) {
+                        star.className = 'fas fa-star';
+                    } else {
+                        star.className = 'far fa-star';
+                    }
+                }
+            }
+        }
+
+        function showRatingModal(transactionId, sellerId, itemTitle) {
+            currentTransactionForRating = { transactionId, sellerId };
+            document.getElementById('ratingDetails').innerHTML = `<p>Rate your experience with <strong>${escapeHtml(itemTitle)}</strong></p>`;
+            document.getElementById('ratingModal').classList.add('active');
+            
+            currentRating = 0;
+            document.getElementById('selectedRating').value = 0;
+            document.getElementById('ratingComment').value = '';
+            for (let i = 1; i <= 5; i++) {
+                const star = document.querySelector(`[data-rating="${i}"]`);
+                if (star) star.className = 'far fa-star';
+            }
+        }
+
+        function closeRatingModal() {
+            document.getElementById('ratingModal').classList.remove('active');
+            currentTransactionForRating = null;
+        }
+
+        async function submitRating() {
+            if (!currentTransactionForRating) return;
+            if (currentRating === 0) {
+                showToast('Please select a rating', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/ratings`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({
+                        transaction_id: currentTransactionForRating.transactionId,
+                        reviewer_id: currentUser.id,
+                        reviewee_id: currentTransactionForRating.sellerId,
+                        rating: currentRating,
+                        comment: document.getElementById('ratingComment').value
+                    })
+                });
+                
+                if (response.ok) {
+                    showToast('Thank you for your review! Trust score updated.', 'success');
+                    closeRatingModal();
+                    loadTrustDetails();
+                    loadDashboardData();
+                } else {
+                    const error = await response.json();
+                    showToast(error.error || 'Failed to submit review', 'error');
+                }
+            } catch (error) {
+                showToast('Error submitting review', 'error');
+            }
+        }
+
+        loadDashboardData();
+        loadTrustDetails();
+
+        history.pushState(null, null, location.href);
+        window.addEventListener('popstate', function(event) {
+            if (localStorage.getItem('token')) {
+                history.pushState(null, null, location.href);
+            }
+        });
+    </script>
+</body>
+</html>

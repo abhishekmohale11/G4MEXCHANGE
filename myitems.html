@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Items - G4MEXCHANGE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="bg-animation"></div>
+    
+    <div class="navbar">
+        <a href="dashboard.html" class="logo">
+            <i class="fas fa-gamepad"></i>
+            <h2>G4M<span>EXCHANGE</span></h2>
+        </a>
+        <div class="nav-controls">
+            <div class="role-badge" id="roleBadge">
+                <i class="fas fa-user-tag"></i>
+                <span id="roleText">BUYER</span>
+            </div>
+            <button class="logout-btn-nav" id="logoutButtonNav">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+            <div class="user-menu">
+                <i class="fas fa-user-circle" style="color: white; font-size: 24px;"></i>
+                <span style="color: white;" id="userName"></span>
+                <i class="fas fa-chevron-down" style="color: white; font-size: 12px;"></i>
+                <div class="dropdown">
+                    <a href="profile.html"><i class="fas fa-user"></i> My Profile</a>
+                    <a href="wallet.html"><i class="fas fa-wallet"></i> My Wallet</a>
+                    <a href="transactions.html"><i class="fas fa-history"></i> Transactions</a>
+                    <a href="myitems.html"><i class="fas fa-box"></i> My Items</a>
+                    <hr>
+                    <a id="logoutDropdownBtn" style="color: #DC143C; font-weight: 600;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-layout">
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li onclick="window.location.href='dashboard.html'" id="menu-dashboard">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </li>
+                <li onclick="window.location.href='marketplace.html'" id="menu-marketplace">
+                    <i class="fas fa-store"></i> Marketplace
+                </li>
+                <li onclick="window.location.href='profile.html'" id="menu-profile">
+                    <i class="fas fa-user-circle"></i> My Profile
+                </li>
+                <li onclick="window.location.href='wallet.html'" id="menu-wallet">
+                    <i class="fas fa-wallet"></i> Wallet
+                </li>
+                <li onclick="window.location.href='transactions.html'" id="menu-transactions">
+                    <i class="fas fa-history"></i> Transaction History
+                </li>
+                <li onclick="window.location.href='myitems.html'" id="menu-myitems" class="active">
+                    <i class="fas fa-box"></i> My Items
+                </li>
+            </ul>
+        </div>
+
+        <div class="content-area">
+            <div class="chart-card">
+                <h3><i class="fas fa-box"></i> My Listings</h3>
+                <div id="myItemsGrid" class="items-grid"><div style="text-align: center; padding: 40px;"><div class="loading"></div> Loading your items...</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let currentUser = null;
+
+        const token = localStorage.getItem('token');
+        if (!token) { window.location.href = '/'; }
+        currentUser = JSON.parse(localStorage.getItem('user'));
+        
+        document.getElementById('userName').textContent = currentUser.full_name || currentUser.username;
+        
+        let currentRole = localStorage.getItem('userRole') || currentUser.role || 'buyer';
+        document.getElementById('roleText').textContent = currentRole.toUpperCase();
+        
+        const roleBadge = document.getElementById('roleBadge');
+        if (currentRole === 'seller') {
+            roleBadge.style.background = '#28a745';
+        } else {
+            roleBadge.style.background = '#FFD700';
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                showToast('Logged out successfully!', 'success');
+                setTimeout(() => { window.location.href = '/'; }, 1000);
+            }
+        }
+
+        document.getElementById('logoutButtonNav').addEventListener('click', logout);
+        document.getElementById('logoutDropdownBtn').addEventListener('click', logout);
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.remove('hidden');
+            setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+        }
+
+        function getConsoleClass(consoleType) {
+            const type = consoleType.toLowerCase();
+            if (type.includes('xbox')) return 'xbox';
+            if (type.includes('ps5') || type.includes('ps4')) return 'ps5';
+            if (type.includes('nintendo')) return 'nintendo';
+            if (type.includes('pc')) return 'pc';
+            return '';
+        }
+
+        async function loadMyItems() {
+            try {
+                const response = await fetch(`${API_URL}/users/${currentUser.id}/listings`, { 
+                    headers: { 'Authorization': `Bearer ${token}` } 
+                });
+                const items = await response.json();
+                const grid = document.getElementById('myItemsGrid');
+                
+                if (items.length === 0) { 
+                    grid.innerHTML = '<div style="text-align: center; padding: 40px;"><i class="fas fa-box-open" style="font-size: 48px; color: #ccc;"></i><p>No items listed yet</p><p><a href="marketplace.html" class="btn-primary" style="margin-top: 10px; display: inline-block;">Go to Marketplace to List Items</a></p></div>'; 
+                    return; 
+                }
+                
+                grid.innerHTML = items.map(item => {
+                    const consoleClass = getConsoleClass(item.console_type);
+                    const conditionClass = item.item_condition === 'new' ? 'condition-new' : (item.item_condition === 'like-new' ? 'condition-like-new' : 'condition-good');
+                    return `
+                        <div class="item-card ${consoleClass}">
+                            <div class="item-price">$${item.price}</div>
+                            <h3>${escapeHtml(item.title)}</h3>
+                            <p>${item.category} | ${item.console_type}</p>
+                            <span class="item-condition ${conditionClass}">${item.item_condition}</span>
+                            <p><small>Status: ${item.status}</small></p>
+                            <button class="btn-primary" onclick="deleteItem(${item.id})" style="background: #dc3545; margin-top: 10px;"><i class="fas fa-trash"></i> Delete</button>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) { console.error(error); }
+        }
+
+        async function deleteItem(itemId) {
+            if (confirm('Delete this item?')) {
+                const response = await fetch(`${API_URL}/items/${itemId}`, {
+                    method: 'DELETE', 
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ seller_id: currentUser.id })
+                });
+                if (response.ok) {
+                    showToast('Item deleted', 'success');
+                    loadMyItems();
+                } else {
+                    showToast('Failed to delete item', 'error');
+                }
+            }
+        }
+
+        function escapeHtml(str) { 
+            if (!str) return ''; 
+            return str.replace(/[&<>]/g, function(m) { 
+                if (m === '&') return '&amp;'; 
+                if (m === '<') return '&lt;'; 
+                if (m === '>') return '&gt;'; 
+                return m; 
+            }); 
+        }
+
+        loadMyItems();
+    </script>
+</body>
+</html>
